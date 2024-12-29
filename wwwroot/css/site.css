@@ -2,7 +2,7 @@
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background-color:black;
+/*    background-color:black;*/
 
 }
 
@@ -66,8 +66,7 @@ a, .btn-link {
     }
 
 body {
-    background-color: #121212;
-    color: #eaeaea;
+
     font-family: 'Roboto', sans-serif;
    
 }
@@ -289,3 +288,18 @@ margin-left:10px;
             font-size: 16px;
             color: #d4d4d4; /* Lighter text for description */
         }
+
+
+
+.animated-card {
+    transition: transform 0.2s;
+}
+
+    .animated-card:hover {
+        transform: scale(1.05);
+    }
+
+.chart-container {
+    width: 80%;
+    margin: 20px auto;
+}

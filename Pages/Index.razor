@@ -1,27 +1,121 @@
 ﻿@page "/"
 
-<h3>Welcome To Dashboard</h3>
-<div class="d-flex flex-wrap justify-content-center">
-    <TaskSummaryCard Title="Total Tasks"
-                     Count="100"
-                     Description="All tasks assigned"
-                     CardHeaderColor="#6a67ce" />
 
-    <TaskSummaryCard Title="Completed Tasks"
-                     Count="40"
-                     Description="Tasks completed successfully"
-                     CardHeaderColor="#28a745" />
+@using System.Linq
+@using System.Collections.Generic
 
-    <TaskSummaryCard Title="Remaining Tasks"
-                     Count="60"
-                     Description="Tasks yet to be completed"
-                     CardHeaderColor="#dc3545" />
+@inject IJSRuntime JSRuntime
+
+
+<div class="container mt-4">
+    <h2 class="mb-4">Task Statistics</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Task Overview</h5>
+                    <div class="mb-3">
+                        <label>Completion Rate</label>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: @CompletionRate%">
+                                @($"{CompletionRate:F1}%")
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-6">
+                            <div class="border rounded p-3 text-center">
+                                <h3 class="text-primary">@CompletedTasks</h3>
+                                <p class="mb-0">Completed Tasks</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-3 text-center">
+                                <h3 class="text-warning">@PendingTasks</h3>
+                                <p class="mb-0">Pending Tasks</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Priority Distribution</h5>
+                    <div style="height: 300px;">
+                        <canvas id="priorityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-4 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h6>Total Tasks</h6>
+                    <h2>@TotalTasks</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h6>In Progress</h6>
+                    <h2>@PendingTasks</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h6>Completed Today</h6>
+                    <h2>@CompletedTasks</h2>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<!-- Card Component -->
 
 
-<div class="d-flex ">
-<CardWithCanvas TotalTasks="30" CompletedTasks="10" />
-    <AddTask CardHeaderColor="#6c757d" />
- @* <Calander CardHeaderColor="#ff8c00" /> *@
-</div>
+
+
+@code {
+    [Parameter]
+    public List<TaskItem> Tasks { get; set; } = new List<TaskItem>();
+
+    // private int TotalTasks => Tasks.Count;
+    private int TotalTasks =100;
+    private int CompletedTasks =30;
+    private int PendingTasks =70;
+    private double CompletionRate => TotalTasks > 0 ? (double)CompletedTasks / TotalTasks * 100 : 0;
+
+    private int HighPriority = 100;
+    private int MediumPriority =20;
+    private int LowPriority =40;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("renderPieChart", "priorityChart", new[] { HighPriority, MediumPriority, LowPriority });
+        }
+    }
+}
+
+
+
+@code {
+    public class TaskItem
+    {
+        public string Status { get; set; }
+        public string Priority { get; set; }
+    }
+}
